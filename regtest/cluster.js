@@ -12,18 +12,18 @@ var should = chai.should();
 
 var index = require('..');
 var log = index.log;
-log.debug = function() {};
+log.debug = function () { };
 var BitcoreNode = index.Node;
 var BitcoinService = index.services.Bitcoin;
 
-describe('Bitcoin Cluster', function() {
+describe('Bitcoin Cluster', function () {
   var node;
   var daemons = [];
-  var execPath = path.resolve(__dirname, '../bin/zcashd');
+  var execPath = path.resolve(__dirname, '../bin/resistanced');
   var nodesConf = [
     {
       datadir: path.resolve(__dirname, './data/node1'),
-      conf: path.resolve(__dirname, './data/node1/zcash.conf'),
+      conf: path.resolve(__dirname, './data/node1/resistance.conf'),
       rpcuser: 'bitcoin',
       rpcpassword: 'local321',
       rpcport: 30521,
@@ -32,7 +32,7 @@ describe('Bitcoin Cluster', function() {
     },
     {
       datadir: path.resolve(__dirname, './data/node2'),
-      conf: path.resolve(__dirname, './data/node2/zcash.conf'),
+      conf: path.resolve(__dirname, './data/node2/resistance.conf'),
       rpcuser: 'bitcoin',
       rpcpassword: 'local321',
       rpcport: 30522,
@@ -41,7 +41,7 @@ describe('Bitcoin Cluster', function() {
     },
     {
       datadir: path.resolve(__dirname, './data/node3'),
-      conf: path.resolve(__dirname, './data/node3/zcash.conf'),
+      conf: path.resolve(__dirname, './data/node3/resistance.conf'),
       rpcuser: 'bitcoin',
       rpcpassword: 'local321',
       rpcport: 30523,
@@ -50,22 +50,22 @@ describe('Bitcoin Cluster', function() {
     }
   ];
 
-  before(function(done) {
+  before(function (done) {
     log.info('Starting 3 bitcoind daemons');
     this.timeout(60000);
-    async.each(nodesConf, function(nodeConf, next) {
+    async.each(nodesConf, function (nodeConf, next) {
       var opts = [
         '--regtest',
         '--datadir=' + nodeConf.datadir,
         '--conf=' + nodeConf.conf
       ];
 
-      rimraf(path.resolve(nodeConf.datadir, './regtest'), function(err) {
+      rimraf(path.resolve(nodeConf.datadir, './regtest'), function (err) {
         if (err) {
           return done(err);
         }
 
-        var process = spawn(execPath, opts, {stdio: 'inherit'});
+        var process = spawn(execPath, opts, { stdio: 'inherit' });
 
         var client = new BitcoinRPC({
           protocol: 'http',
@@ -77,7 +77,7 @@ describe('Bitcoin Cluster', function() {
 
         daemons.push(process);
 
-        async.retry({times: 10, interval: 5000}, function(ready) {
+        async.retry({ times: 10, interval: 5000 }, function (ready) {
           client.getInfo(ready);
         }, next);
 
@@ -86,17 +86,17 @@ describe('Bitcoin Cluster', function() {
     }, done);
   });
 
-  after(function(done) {
+  after(function (done) {
     this.timeout(10000);
-    setTimeout(function() {
-      async.each(daemons, function(process, next) {
+    setTimeout(function () {
+      async.each(daemons, function (process, next) {
         process.once('exit', next);
         process.kill('SIGINT');
       }, done);
     }, 1000);
   });
 
-  it('step 1: will connect to three bitcoind daemons', function(done) {
+  it('step 1: will connect to three bitcoind daemons', function (done) {
     this.timeout(20000);
     var configuration = {
       network: 'regtest',
@@ -138,15 +138,15 @@ describe('Bitcoin Cluster', function() {
 
     node = new BitcoreNode(configuration);
 
-    node.on('error', function(err) {
+    node.on('error', function (err) {
       log.error(err);
     });
 
-    node.on('ready', function() {
+    node.on('ready', function () {
       done();
     });
 
-    node.start(function(err) {
+    node.start(function (err) {
       if (err) {
         return done(err);
       }
@@ -154,13 +154,13 @@ describe('Bitcoin Cluster', function() {
 
   });
 
-  it('step 2: receive block events', function(done) {
+  it('step 2: receive block events', function (done) {
     this.timeout(10000);
-    node.services.bitcoind.once('tip', function(height) {
+    node.services.bitcoind.once('tip', function (height) {
       height.should.equal(1);
       done();
     });
-    node.generateBlock(1, function(err, hashes) {
+    node.generateBlock(1, function (err, hashes) {
       if (err) {
         return done(err);
       }
@@ -168,9 +168,9 @@ describe('Bitcoin Cluster', function() {
     });
   });
 
-  it('step 3: get blocks', function(done) {
-    async.times(3, function(n, next) {
-      node.getBlock(1, function(err, block) {
+  it('step 3: get blocks', function (done) {
+    async.times(3, function (n, next) {
+      node.getBlock(1, function (err, block) {
         if (err) {
           return next(err);
         }

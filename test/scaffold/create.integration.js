@@ -12,7 +12,7 @@ var create = proxyquire('../../lib/scaffold/create', {
       stderr: {
         on: sinon.stub()
       },
-      on: function(event, cb) {
+      on: function (event, cb) {
         cb(0);
       }
     })
@@ -22,18 +22,18 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
 
-describe('#create', function() {
+describe('#create', function () {
 
   var basePath = __dirname + '/../';
   var testDir = basePath + 'temporary-test-data';
 
-  before(function(done) {
+  before(function (done) {
     // setup testing directories
-    mkdirp(testDir, function(err) {
+    mkdirp(testDir, function (err) {
       if (err) {
         throw err;
       }
-      mkdirp(testDir + '/.zcash', function(err) {
+      mkdirp(testDir + '/.resistance', function (err) {
         if (err) {
           throw err;
         }
@@ -42,9 +42,9 @@ describe('#create', function() {
     });
   });
 
-  after(function(done) {
+  after(function (done) {
     // cleanup testing directories
-    rimraf(testDir, function(err) {
+    rimraf(testDir, function (err) {
       if (err) {
         throw err;
       }
@@ -52,14 +52,14 @@ describe('#create', function() {
     });
   });
 
-  it('will create scaffold files', function() {
+  it('will create scaffold files', function () {
     create({
       cwd: testDir,
       dirname: 'mynode',
       name: 'My Node 1',
       isGlobal: false,
       datadir: './data'
-    }, function(err) {
+    }, function (err) {
       if (err) {
         throw err;
       }
@@ -82,7 +82,7 @@ describe('#create', function() {
 
   });
 
-  it('will error if directory already exists', function() {
+  it('will error if directory already exists', function () {
 
     create({
       cwd: testDir,
@@ -90,22 +90,22 @@ describe('#create', function() {
       name: 'My Node 2',
       isGlobal: false,
       datadir: './data'
-    }, function(err) {
+    }, function (err) {
       should.exist(err);
       err.message.should.match(/^Directory/);
     });
 
   });
 
-  it('will not create a package.json if globally installed', function() {
+  it('will not create a package.json if globally installed', function () {
 
     create({
       cwd: testDir,
       dirname: 'mynode3',
       name: 'My Node 3',
       isGlobal: true,
-      datadir: '../.zcash'
-    }, function(err) {
+      datadir: '../.resistance'
+    }, function (err) {
       if (err) {
         throw err;
       }
@@ -117,7 +117,7 @@ describe('#create', function() {
 
   });
 
-  it('will receieve an error from npm', function() {
+  it('will receieve an error from npm', function () {
     var createtest = proxyquire('../../lib/scaffold/create', {
       'child_process': {
         spawn: sinon.stub().returns({
@@ -127,7 +127,7 @@ describe('#create', function() {
           stderr: {
             on: sinon.stub()
           },
-          on: function(event, cb) {
+          on: function (event, cb) {
             cb(1);
           }
         })
@@ -139,8 +139,8 @@ describe('#create', function() {
       dirname: 'mynode4',
       name: 'My Node 4',
       isGlobal: false,
-      datadir: '../.zcash'
-    }, function(err) {
+      datadir: '../.resistance'
+    }, function (err) {
       should.exist(err);
       err.message.should.equal('There was an error installing dependencies.');
     });

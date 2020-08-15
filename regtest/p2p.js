@@ -34,9 +34,9 @@ var destKey = bitcore.PrivateKey();
 var BufferUtil = bitcore.util.buffer;
 var blocks;
 
-describe('P2P Functionality', function() {
+describe('P2P Functionality', function () {
 
-  before(function(done) {
+  before(function (done) {
     this.timeout(100000);
 
     // enable regtest
@@ -44,7 +44,7 @@ describe('P2P Functionality', function() {
     var regtestNetwork = bitcore.Networks.get('regtest');
     var datadir = __dirname + '/data';
 
-    rimraf(datadir + '/regtest', function(err) {
+    rimraf(datadir + '/regtest', function (err) {
       if (err) {
         throw err;
       }
@@ -52,24 +52,24 @@ describe('P2P Functionality', function() {
       bitcoind = require('../').services.Bitcoin({
         spawn: {
           datadir: datadir,
-          exec: path.resolve(__dirname, '../bin/zcashd')
+          exec: path.resolve(__dirname, '../bin/resistanced')
         },
         node: {
           network: bitcore.Networks.testnet
         }
       });
 
-      bitcoind.on('error', function(err) {
+      bitcoind.on('error', function (err) {
         log.error('error="%s"', err.message);
       });
 
-      log.info('Waiting for Zcash to initialize...');
+      log.info('Waiting for resistance to initialize...');
 
-      bitcoind.start(function(err) {
+      bitcoind.start(function (err) {
         if (err) {
           throw err;
         }
-        log.info('Zcashd started');
+        log.info('resistanced started');
 
         client = new BitcoinRPC({
           protocol: 'http',
@@ -97,8 +97,8 @@ describe('P2P Functionality', function() {
         // Generate enough blocks so that the initial coinbase transactions
         // can be spent.
 
-        setImmediate(function() {
-          client.generate(blocks, function(err, response) {
+        setImmediate(function () {
+          client.generate(blocks, function (err, response) {
             if (err) {
               throw err;
             }
@@ -107,14 +107,14 @@ describe('P2P Functionality', function() {
             log.info('Preparing test data...');
 
             // Get all of the unspent outputs
-            client.listUnspent(0, blocks, function(err, response) {
+            client.listUnspent(0, blocks, function (err, response) {
               var utxos = response.result;
 
-              async.mapSeries(utxos, function(utxo, next) {
+              async.mapSeries(utxos, function (utxo, next) {
                 async.series([
-                  function(finished) {
+                  function (finished) {
                     // Load all of the transactions for later testing
-                    client.getTransaction(utxo.txid, function(err, txresponse) {
+                    client.getTransaction(utxo.txid, function (err, txresponse) {
                       if (err) {
                         throw err;
                       }
@@ -123,9 +123,9 @@ describe('P2P Functionality', function() {
                       finished();
                     });
                   },
-                  function(finished) {
+                  function (finished) {
                     // Get the private key for each utxo
-                    client.dumpPrivKey(utxo.address, function(err, privresponse) {
+                    client.dumpPrivKey(utxo.address, function (err, privresponse) {
                       if (err) {
                         throw err;
                       }
@@ -140,11 +140,11 @@ describe('P2P Functionality', function() {
                     });
                   }
                 ], next);
-              }, function(err) {
+              }, function (err) {
                 if (err) {
                   throw err;
                 }
-                peer.on('ready', function() {
+                peer.on('ready', function () {
                   log.info('Peer ready');
                   done();
                 });
@@ -159,24 +159,24 @@ describe('P2P Functionality', function() {
 
   });
 
-  after(function(done) {
+  after(function (done) {
     this.timeout(20000);
-    peer.on('disconnect', function() {
+    peer.on('disconnect', function () {
       log.info('Peer disconnected');
       bitcoind.node.stopping = true;
-      bitcoind.stop(function(err, result) {
+      bitcoind.stop(function (err, result) {
         done();
       });
     });
     peer.disconnect();
   });
 
-  it('will be able to handle many inventory messages and be able to send getdata messages and received the txs', function(done) {
+  it('will be able to handle many inventory messages and be able to send getdata messages and received the txs', function (done) {
     this.timeout(100000);
 
     var usedTxs = {};
 
-    bitcoind.on('tx', function(buffer) {
+    bitcoind.on('tx', function (buffer) {
       var txFromResult = new Transaction().fromBuffer(buffer);
       var tx = usedTxs[txFromResult.id];
       should.exist(tx);
@@ -187,7 +187,7 @@ describe('P2P Functionality', function() {
       }
     });
 
-    peer.on('getdata', function(message) {
+    peer.on('getdata', function (message) {
       var hash = message.inventory[0].hash;
       var reversedHash = BufferUtil.reverse(hash).toString('hex');
       var tx = usedTxs[reversedHash];
@@ -197,17 +197,17 @@ describe('P2P Functionality', function() {
       }
     });
     async.whilst(
-      function() {
+      function () {
         return txs.length > 0;
       },
-      function(callback) {
+      function (callback) {
         var tx = txs.pop();
         usedTxs[tx.id] = tx;
         var message = messages.Inventory.forTransaction(tx.hash);
         peer.sendMessage(message);
         callback();
       },
-      function(err) {
+      function (err) {
         if (err) {
           throw err;
         }

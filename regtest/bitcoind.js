@@ -26,9 +26,9 @@ var coinbasePrivateKey;
 var privateKey = bitcore.PrivateKey();
 var destKey = bitcore.PrivateKey();
 
-describe('Zcashd Functionality', function() {
+describe('resistanced Functionality', function () {
 
-  before(function(done) {
+  before(function (done) {
     this.timeout(60000);
 
     // Add the regtest network
@@ -37,7 +37,7 @@ describe('Zcashd Functionality', function() {
 
     var datadir = __dirname + '/data';
 
-    rimraf(datadir + '/regtest', function(err) {
+    rimraf(datadir + '/regtest', function (err) {
 
       if (err) {
         throw err;
@@ -46,24 +46,24 @@ describe('Zcashd Functionality', function() {
       bitcoind = require('../').services.Bitcoin({
         spawn: {
           datadir: datadir,
-          exec: path.resolve(__dirname, '../bin/zcashd')
+          exec: path.resolve(__dirname, '../bin/resistanced')
         },
         node: {
           network: regtestNetwork,
-          getNetworkName: function() {
+          getNetworkName: function () {
             return 'regtest';
           }
         }
       });
 
-      bitcoind.on('error', function(err) {
+      bitcoind.on('error', function (err) {
         log.error('error="%s"', err.message);
       });
 
-      log.info('Waiting for Zcash to initialize...');
+      log.info('Waiting for resistance to initialize...');
 
-      bitcoind.start(function() {
-        log.info('Zcashd started');
+      bitcoind.start(function () {
+        log.info('resistanced started');
 
         client = new BitcoinRPC({
           protocol: 'http',
@@ -79,8 +79,8 @@ describe('Zcashd Functionality', function() {
         // Generate enough blocks so that the initial coinbase transactions
         // can be spent.
 
-        setImmediate(function() {
-          client.generate(150, function(err, response) {
+        setImmediate(function () {
+          client.generate(150, function (err, response) {
             if (err) {
               throw err;
             }
@@ -89,14 +89,14 @@ describe('Zcashd Functionality', function() {
             log.info('Preparing test data...');
 
             // Get all of the unspent outputs
-            client.listUnspent(0, 150, function(err, response) {
+            client.listUnspent(0, 150, function (err, response) {
               utxos = response.result;
 
-              async.mapSeries(utxos, function(utxo, next) {
+              async.mapSeries(utxos, function (utxo, next) {
                 async.series([
-                  function(finished) {
+                  function (finished) {
                     // Load all of the transactions for later testing
-                    client.getTransaction(utxo.txid, function(err, txresponse) {
+                    client.getTransaction(utxo.txid, function (err, txresponse) {
                       if (err) {
                         throw err;
                       }
@@ -105,9 +105,9 @@ describe('Zcashd Functionality', function() {
                       finished();
                     });
                   },
-                  function(finished) {
+                  function (finished) {
                     // Get the private key for each utxo
-                    client.dumpPrivKey(utxo.address, function(err, privresponse) {
+                    client.dumpPrivKey(utxo.address, function (err, privresponse) {
                       if (err) {
                         throw err;
                       }
@@ -116,7 +116,7 @@ describe('Zcashd Functionality', function() {
                     });
                   }
                 ], next);
-              }, function(err) {
+              }, function (err) {
                 if (err) {
                   throw err;
                 }
@@ -129,19 +129,19 @@ describe('Zcashd Functionality', function() {
     });
   });
 
-  after(function(done) {
+  after(function (done) {
     this.timeout(60000);
     bitcoind.node.stopping = true;
-    bitcoind.stop(function(err, result) {
+    bitcoind.stop(function (err, result) {
       done();
     });
   });
 
-  describe('get blocks by hash', function() {
+  describe('get blocks by hash', function () {
 
-    [0,1,2,3,5,6,7,8,9].forEach(function(i) {
-      it('generated block ' + i, function(done) {
-        bitcoind.getBlock(blockHashes[i], function(err, block) {
+    [0, 1, 2, 3, 5, 6, 7, 8, 9].forEach(function (i) {
+      it('generated block ' + i, function (done) {
+        bitcoind.getBlock(blockHashes[i], function (err, block) {
           if (err) {
             throw err;
           }
@@ -153,10 +153,10 @@ describe('Zcashd Functionality', function() {
     });
   });
 
-  describe('get blocks as buffers', function() {
-    [0,1,2,3,5,6,7,8,9].forEach(function(i) {
-      it('generated block ' + i, function(done) {
-        bitcoind.getRawBlock(blockHashes[i], function(err, block) {
+  describe('get blocks as buffers', function () {
+    [0, 1, 2, 3, 5, 6, 7, 8, 9].forEach(function (i) {
+      it('generated block ' + i, function (done) {
+        bitcoind.getRawBlock(blockHashes[i], function (err, block) {
           if (err) {
             throw err;
           }
@@ -168,9 +168,9 @@ describe('Zcashd Functionality', function() {
     });
   });
 
-  describe('get errors as error instances', function() {
-    it('will wrap an rpc into a javascript error', function(done) {
-      bitcoind.client.getBlock(1000000000, function(err, response) {
+  describe('get errors as error instances', function () {
+    it('will wrap an rpc into a javascript error', function (done) {
+      bitcoind.client.getBlock(1000000000, function (err, response) {
         var error = bitcoind._wrapRPCError(err);
         (error instanceof Error).should.equal(true);
         error.message.should.equal(err.message);
@@ -181,13 +181,13 @@ describe('Zcashd Functionality', function() {
     });
   });
 
-  describe('get blocks by height', function() {
+  describe('get blocks by height', function () {
 
-    [0,1,2,3,4,5,6,7,8,9].forEach(function(i) {
-      it('generated block ' + i, function(done) {
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(function (i) {
+      it('generated block ' + i, function (done) {
         // add the genesis block
         var height = i + 1;
-        bitcoind.getBlock(i + 1, function(err, block) {
+        bitcoind.getBlock(i + 1, function (err, block) {
           if (err) {
             throw err;
           }
@@ -198,8 +198,8 @@ describe('Zcashd Functionality', function() {
       });
     });
 
-    it('will get error with number greater than tip', function(done) {
-      bitcoind.getBlock(1000000000, function(err, response) {
+    it('will get error with number greater than tip', function (done) {
+      bitcoind.getBlock(1000000000, function (err, response) {
         should.exist(err);
         err.code.should.equal(-8);
         done();
@@ -208,13 +208,13 @@ describe('Zcashd Functionality', function() {
 
   });
 
-  describe('get transactions by hash', function() {
-    [0,1,2,3,4,5,6,7,8,9].forEach(function(i) {
-      it('for tx ' + i, function(done) {
+  describe('get transactions by hash', function () {
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(function (i) {
+      it('for tx ' + i, function (done) {
         var txhex = transactionData[i];
         var tx = new bitcore.Transaction();
         tx.fromString(txhex);
-        bitcoind.getTransaction(tx.hash, function(err, response) {
+        bitcoind.getTransaction(tx.hash, function (err, response) {
           if (err) {
             throw err;
           }
@@ -224,22 +224,22 @@ describe('Zcashd Functionality', function() {
       });
     });
 
-    it('will return error if the transaction does not exist', function(done) {
+    it('will return error if the transaction does not exist', function (done) {
       var txid = '6226c407d0e9705bdd7158e60983e37d0f5d23529086d6672b07d9238d5aa618';
-      bitcoind.getTransaction(txid, function(err, response) {
+      bitcoind.getTransaction(txid, function (err, response) {
         should.exist(err);
         done();
       });
     });
   });
 
-  describe('get transactions as buffers', function() {
-    [0,1,2,3,4,5,6,7,8,9].forEach(function(i) {
-      it('for tx ' + i, function(done) {
+  describe('get transactions as buffers', function () {
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(function (i) {
+      it('for tx ' + i, function (done) {
         var txhex = transactionData[i];
         var tx = new bitcore.Transaction();
         tx.fromString(txhex);
-        bitcoind.getRawTransaction(tx.hash, function(err, response) {
+        bitcoind.getRawTransaction(tx.hash, function (err, response) {
           if (err) {
             throw err;
           }
@@ -250,20 +250,20 @@ describe('Zcashd Functionality', function() {
       });
     });
 
-    it('will return error if the transaction does not exist', function(done) {
+    it('will return error if the transaction does not exist', function (done) {
       var txid = '6226c407d0e9705bdd7158e60983e37d0f5d23529086d6672b07d9238d5aa618';
-      bitcoind.getRawTransaction(txid, function(err, response) {
+      bitcoind.getRawTransaction(txid, function (err, response) {
         should.exist(err);
         done();
       });
     });
   });
 
-  describe('get block header', function() {
+  describe('get block header', function () {
     var expectedWork = new BN(6);
-    [1,2,3,4,5,6,7,8,9].forEach(function(i) {
-      it('generate block ' + i, function(done) {
-        bitcoind.getBlockHeader(blockHashes[i], function(err, blockIndex) {
+    [1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(function (i) {
+      it('generate block ' + i, function (done) {
+        bitcoind.getBlockHeader(blockHashes[i], function (err, blockIndex) {
           if (err) {
             return done(err);
           }
@@ -280,8 +280,8 @@ describe('Zcashd Functionality', function() {
         });
       });
     });
-    it('will get null prevHash for the genesis block', function(done) {
-      bitcoind.getBlockHeader(0, function(err, header) {
+    it('will get null prevHash for the genesis block', function (done) {
+      bitcoind.getBlockHeader(0, function (err, header) {
         if (err) {
           return done(err);
         }
@@ -290,19 +290,19 @@ describe('Zcashd Functionality', function() {
         done();
       });
     });
-    it('will get error for block not found', function(done) {
-      bitcoind.getBlockHeader('notahash', function(err, header) {
+    it('will get error for block not found', function (done) {
+      bitcoind.getBlockHeader('notahash', function (err, header) {
         should.exist(err);
         done();
       });
     });
   });
 
-  describe('get block index by height', function() {
+  describe('get block index by height', function () {
     var expectedWork = new BN(6);
-    [2,3,4,5,6,7,8,9].forEach(function(i) {
-      it('generate block ' + i, function() {
-        bitcoind.getBlockHeader(i, function(err, header) {
+    [2, 3, 4, 5, 6, 7, 8, 9].forEach(function (i) {
+      it('generate block ' + i, function () {
+        bitcoind.getBlockHeader(i, function (err, header) {
           should.exist(header);
           should.exist(header.chainWork);
           var work = new BN(header.chainWork, 'hex');
@@ -315,17 +315,17 @@ describe('Zcashd Functionality', function() {
         });
       });
     });
-    it('will get error with number greater than tip', function(done) {
-      bitcoind.getBlockHeader(100000, function(err, header) {
+    it('will get error with number greater than tip', function (done) {
+      bitcoind.getBlockHeader(100000, function (err, header) {
         should.exist(err);
         done();
       });
     });
   });
 
-  describe('send transaction functionality', function() {
+  describe('send transaction functionality', function () {
 
-    it('will not error and return the transaction hash', function(done) {
+    it('will not error and return the transaction hash', function (done) {
 
       // create and sign the transaction
       var tx = bitcore.Transaction();
@@ -335,7 +335,7 @@ describe('Zcashd Functionality', function() {
       tx.sign(bitcore.PrivateKey.fromWIF(utxos[0].privateKeyWIF));
 
       // test sending the transaction
-      bitcoind.sendTransaction(tx.serialize(), function(err, hash) {
+      bitcoind.sendTransaction(tx.serialize(), function (err, hash) {
         if (err) {
           return done(err);
         }
@@ -345,12 +345,12 @@ describe('Zcashd Functionality', function() {
 
     });
 
-    it('will throw an error if an unsigned transaction is sent', function(done) {
+    it('will throw an error if an unsigned transaction is sent', function (done) {
       var tx = bitcore.Transaction();
       tx.from(utxos[1]);
       tx.change(privateKey.toAddress());
       tx.to(destKey.toAddress(), utxos[1].amount * 1e8 - 1000);
-      bitcoind.sendTransaction(tx.uncheckedSerialize(), function(err, hash) {
+      bitcoind.sendTransaction(tx.uncheckedSerialize(), function (err, hash) {
         should.exist(err);
         (err instanceof Error).should.equal(true);
         should.not.exist(hash);
@@ -358,13 +358,13 @@ describe('Zcashd Functionality', function() {
       });
     });
 
-    it('will throw an error for unexpected types (tx decode failed)', function(done) {
+    it('will throw an error for unexpected types (tx decode failed)', function (done) {
       var garbage = new Buffer('abcdef', 'hex');
-      bitcoind.sendTransaction(garbage, function(err, hash) {
+      bitcoind.sendTransaction(garbage, function (err, hash) {
         should.exist(err);
         should.not.exist(hash);
         var num = 23;
-        bitcoind.sendTransaction(num, function(err, hash) {
+        bitcoind.sendTransaction(num, function (err, hash) {
           should.exist(err);
           (err instanceof Error).should.equal(true);
           should.not.exist(hash);
@@ -373,7 +373,7 @@ describe('Zcashd Functionality', function() {
       });
     });
 
-    it('will emit "tx" events', function(done) {
+    it('will emit "tx" events', function (done) {
       var tx = bitcore.Transaction();
       tx.from(utxos[2]);
       tx.change(privateKey.toAddress());
@@ -382,11 +382,11 @@ describe('Zcashd Functionality', function() {
 
       var serialized = tx.serialize();
 
-      bitcoind.once('tx', function(buffer) {
+      bitcoind.once('tx', function (buffer) {
         buffer.toString('hex').should.equal(serialized);
         done();
       });
-      bitcoind.sendTransaction(serialized, function(err, hash) {
+      bitcoind.sendTransaction(serialized, function (err, hash) {
         if (err) {
           return done(err);
         }
@@ -396,9 +396,9 @@ describe('Zcashd Functionality', function() {
 
   });
 
-  describe('fee estimation', function() {
-    it('will estimate fees', function(done) {
-      bitcoind.estimateFee(1, function(err, fees) {
+  describe('fee estimation', function () {
+    it('will estimate fees', function (done) {
+      bitcoind.estimateFee(1, function (err, fees) {
         if (err) {
           return done(err);
         }
@@ -408,15 +408,15 @@ describe('Zcashd Functionality', function() {
     });
   });
 
-  describe('tip updates', function() {
-    it('will get an event when the tip is new', function(done) {
+  describe('tip updates', function () {
+    it('will get an event when the tip is new', function (done) {
       this.timeout(4000);
-      bitcoind.on('tip', function(height) {
+      bitcoind.on('tip', function (height) {
         if (height === 151) {
           done();
         }
       });
-      client.generate(1, function(err, response) {
+      client.generate(1, function (err, response) {
         if (err) {
           throw err;
         }
@@ -424,9 +424,9 @@ describe('Zcashd Functionality', function() {
     });
   });
 
-  describe('get detailed transaction', function() {
-    it('should include details for coinbase tx', function(done) {
-      bitcoind.getDetailedTransaction(utxos[0].txid, function(err, tx) {
+  describe('get detailed transaction', function () {
+    it('should include details for coinbase tx', function (done) {
+      bitcoind.getDetailedTransaction(utxos[0].txid, function (err, tx) {
         if (err) {
           return done(err);
         }
@@ -461,9 +461,9 @@ describe('Zcashd Functionality', function() {
     });
   });
 
-  describe('#getInfo', function() {
-    it('will get information', function(done) {
-      bitcoind.getInfo(function(err, info) {
+  describe('#getInfo', function () {
+    it('will get information', function (done) {
+      bitcoind.getInfo(function (err, info) {
         if (err) {
           return done(err);
         }

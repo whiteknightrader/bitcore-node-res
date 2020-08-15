@@ -5,7 +5,7 @@ var bitcoin = require('bitcoin');
 var async = require('async');
 var maxTime = 20;
 
-console.log('Zcash Service native interface vs. Zcash JSON RPC interface');
+console.log('Resistance Service native interface vs. Resistance JSON RPC interface');
 console.log('----------------------------------------------------------------------');
 
 // To run the benchmarks a fully synced Bitcore Core directory is needed. The RPC comands
@@ -28,37 +28,37 @@ var fixtureData = {
 
 var bitcoind = require('../').services.Bitcoin({
   node: {
-    datadir: process.env.HOME + '/.zcash',
+    datadir: process.env.HOME + '/.resistance',
     network: {
       name: 'testnet'
     }
   }
 });
 
-bitcoind.on('error', function(err) {
+bitcoind.on('error', function (err) {
   console.error(err.message);
 });
 
-bitcoind.start(function(err) {
+bitcoind.start(function (err) {
   if (err) {
     throw err;
   }
-  console.log('Zcash started');
+  console.log('Resistance started');
 });
 
-bitcoind.on('ready', function() {
+bitcoind.on('ready', function () {
 
-  console.log('Zcash ready');
+  console.log('Resistance ready');
 
   var client = new bitcoin.Client({
     host: 'localhost',
-    port: 18332,
+    port: 18132,
     user: 'bitcoin',
     pass: 'local321'
   });
 
   async.series([
-    function(next) {
+    function (next) {
 
       var c = 0;
       var hashesLength = fixtureData.blockHashes.length;
@@ -69,7 +69,7 @@ bitcoind.on('ready', function() {
           c = 0;
         }
         var hash = fixtureData.blockHashes[c];
-        bitcoind.getBlock(hash, function(err, block) {
+        bitcoind.getBlock(hash, function (err, block) {
           if (err) {
             throw err;
           }
@@ -83,7 +83,7 @@ bitcoind.on('ready', function() {
           c = 0;
         }
         var hash = fixtureData.blockHashes[c];
-        client.getBlock(hash, false, function(err, block) {
+        client.getBlock(hash, false, function (err, block) {
           if (err) {
             throw err;
           }
@@ -97,7 +97,7 @@ bitcoind.on('ready', function() {
           c = 0;
         }
         var hash = fixtureData.txHashes[c];
-        bitcoind.getTransaction(hash, true, function(err, tx) {
+        bitcoind.getTransaction(hash, true, function (err, tx) {
           if (err) {
             throw err;
           }
@@ -111,7 +111,7 @@ bitcoind.on('ready', function() {
           c = 0;
         }
         var hash = fixtureData.txHashes[c];
-        client.getRawTransaction(hash, function(err, tx) {
+        client.getRawTransaction(hash, function (err, tx) {
           if (err) {
             throw err;
           }
@@ -143,22 +143,22 @@ bitcoind.on('ready', function() {
       });
 
       suite
-        .on('cycle', function(event) {
+        .on('cycle', function (event) {
           console.log(String(event.target));
         })
-        .on('complete', function() {
+        .on('complete', function () {
           console.log('Fastest is ' + this.filter('fastest').pluck('name'));
           console.log('----------------------------------------------------------------------');
           next();
         })
         .run();
     }
-  ], function(err) {
+  ], function (err) {
     if (err) {
       throw err;
     }
     console.log('Finished');
-    bitcoind.stop(function(err) {
+    bitcoind.stop(function (err) {
       if (err) {
         console.error('Fail to stop services: ' + err);
         process.exit(1);
