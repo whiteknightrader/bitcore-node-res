@@ -19,7 +19,8 @@
     "Patrick Nagurny <patrick@bitpay.com>",
     "Jack Grigg <jack@z.cash>",
     "Simon Liu <simon@z.cash>",
-    "Ian Munoz <ian.org@gmail.com>"
+    "Ian Munoz <ian.org@gmail.com>",
+    "White Knight <whiteknigtrader@gmail.com>"
   ],
   "bin": {
     "bitcore-node": "./bin/bitcore-node"
