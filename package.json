@@ -1,42 +1,25 @@
 {
-  "name": "bitcore-node-zcash",
-  "description": "Full node with extended capabilities using Bitcore and Zcash",
+  "name": "bitcore-node-res",
+  "description": "Full node with extended capabilities using Bitcore and Res",
   "author": "BitPay <dev@bitpay.com>",
   "version": "3.1.2",
   "main": "./index.js",
-  "repository": "git://github.com/zcash-hackworks/bitcore-node-zcash.git",
-  "homepage": "https://github.com/zcash-hackworks/bitcore-node-zcash",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/whiteknightrader/bitcore-node-res.git"
+  },
+  "homepage": "https://github.com/whiteknightrader/bitcore-node-res",
   "bugs": {
-    "url": "https://github.com/zcash-hackworks/bitcore-node-zcash/issues"
+    "url": "https://github.com/whiteknightrader/bitcore-node-res/issues"
   },
   "contributors": [
-    {
-      "name": "Christopher Jeffrey"
-    },
-    {
-      "name": "Braydon Fuller",
-      "email": "braydon@bitpay.com"
-    },
-    {
-      "name": "Chris Kleeschulte",
-      "email": "chrisk@bitpay.com"
-    },
-    {
-      "name": "Patrick Nagurny",
-      "email": "patrick@bitpay.com"
-    },
-    {
-      "name": "Jack Grigg",
-      "email": "jack@z.cash"
-    },
-    {
-      "name": "Simon Liu",
-      "email": "simon@z.cash"
-    },
-    {
-      "name": "Ian Munoz",
-      "email": "ian.org@gmail.com"
-    }
+    "Christopher Jeffrey",
+    "Braydon Fuller <braydon@bitpay.com>",
+    "Chris Kleeschulte <chrisk@bitpay.com>",
+    "Patrick Nagurny <patrick@bitpay.com>",
+    "Jack Grigg <jack@z.cash>",
+    "Simon Liu <simon@z.cash>",
+    "Ian Munoz <ian.org@gmail.com>"
   ],
   "bin": {
     "bitcore-node": "./bin/bitcore-node"
@@ -46,16 +29,16 @@
     "regtest": "./scripts/regtest",
     "jshint": "jshint --reporter=node_modules/jshint-stylish ./lib",
     "coverage": "istanbul cover _mocha -- --recursive",
-    "coveralls": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- --recursive -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- --recursive -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "tags": [
-    "zcash",
-    "zcashd"
+    "Res",
+    "Resistance"
   ],
   "dependencies": {
     "async": "^1.3.0",
     "bitcoind-rpc": "^0.6.0",
-    "bitcore-lib-zcash": "zcash-hackworks/bitcore-lib-zcash",
+    "bitcore-lib-zcash": "github:zcash-hackworks/bitcore-lib-zcash",
     "body-parser": "^1.13.3",
     "colors": "^1.1.2",
     "commander": "^2.8.1",
@@ -69,7 +52,9 @@
     "semver": "^5.0.1",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",
-    "zmq": "^2.14.0"
+    "zmq": "^2.14.0",
+    "bufferutil": "~1.2.1",
+    "utf-8-validate": "~1.2.1"
   },
   "optionalDependencies": {
     "bufferutil": "~1.2.1",
@@ -88,5 +73,14 @@
     "rimraf": "^2.4.2",
     "sinon": "^1.15.4"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "keywords": [
+    "res",
+    "resistance"
+  ]
 }
